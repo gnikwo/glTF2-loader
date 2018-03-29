@@ -186,6 +186,24 @@ struct Node {
     // extensions / extras
 };
 
+struct Camera {
+
+    std::string name;
+    std::string type;
+    
+    struct Perspective {
+        float aspectRatio{0.6};
+        float fov{1.5707};
+        float far{500};
+        float near{0.1};
+    } perspective;
+    
+    struct Orthographic  {
+        float scale{1.0f};
+    } orthographic;
+
+};
+
 struct Accessor {
     std::string name;
 
@@ -236,7 +254,7 @@ struct Asset {
     // std::vector<Animation> animations;
     std::vector<Buffer> buffers;
     std::vector<BufferView> bufferViews;
-    // std::vector<Camera> cameras;
+    std::vector<Camera> cameras;
     std::vector<Image> images;
     std::vector<Material> materials;
     std::vector<Mesh> meshes;

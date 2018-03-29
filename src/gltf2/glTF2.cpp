@@ -15,6 +15,7 @@ AAssetManager* _assetManager = nullptr;
 
 static void loadAsset(Asset& asset, nlohmann::json& json);
 static void loadScenes(Asset& asset, nlohmann::json& json);
+static void loadCameras(Asset& asset, nlohmann::json& json);
 static void loadMeshes(Asset& asset, nlohmann::json& json);
 static void loadNodes(Asset& asset, nlohmann::json& json);
 static void loadBuffers(Asset& asset, nlohmann::json& json);
@@ -322,6 +323,57 @@ static void loadNodes(Asset& asset, nlohmann::json& json) {
         }
 
         // TODO: nodes[i]["weights"]
+    }
+}
+
+static void loadCameras(Asset& asset, nlohmann::json& json) {
+
+    if (json.find("cameras") == json.end()) {
+        return;
+    }
+
+    auto& cameras = json["cameras"];
+    if (!cameras.is_array()) {
+        throw MisformattedExceptionNotArray("cameras");
+    }
+
+    asset.cameras.resize(cameras.size());
+    for (uint32_t i = 0; i < cameras.size(); ++i) {
+
+        // name
+        if (cameras[i].find("name") != cameras[i].end()) {
+            if (!cameras[i]["name"].is_string()) {
+                throw MisformattedExceptionNotString("cameras[i][name]");
+            }
+            asset.cameras[i].name = cameras[i]["name"];
+        }
+        
+        // type
+        if (cameras[i].find("type") != cameras[i].end()) {
+            if (!cameras[i]["type"].is_string()) {
+                throw MisformattedExceptionNotString("cameras[i][type]");
+            }
+            asset.cameras[i].type = cameras[i]["type"];
+        }
+        
+        // perspective
+        if (cameras[i].find("perspective") != cameras[i].end()) {
+            if (!cameras[i]["perspective"].is_object()) {
+                throw MisformattedExceptionNotString("cameras[i][perspective]");
+            }
+            asset.cameras[i].perspective.aspectRatio = cameras[i]["perspective"]["aspectRatio"];
+            asset.cameras[i].perspective.fov = cameras[i]["perspective"]["yfov"];
+            asset.cameras[i].perspective.far = cameras[i]["perspective"]["zfar"];
+            asset.cameras[i].perspective.near = cameras[i]["perspective"]["znear"];
+        }
+        
+        // orthographic
+        if (cameras[i].find("orthographic") != cameras[i].end()) {
+            if (!cameras[i]["orthographic"].is_object()) {
+                throw MisformattedExceptionNotString("cameras[i][orthographic]");
+            }
+            //asset.cameras[i].orthographic = cameras[i]["orthographic"];
+        }
     }
 }
 
@@ -994,6 +1046,7 @@ Asset load(std::string fileName) {
     loadScenes(asset, json);
     loadMeshes(asset, json);
     loadNodes(asset, json);
+    loadCameras(asset, json);
     loadBuffers(asset, json);
     loadBufferViews(asset, json);
     loadAccessors(asset, json);
